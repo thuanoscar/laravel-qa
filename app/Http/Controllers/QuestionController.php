@@ -25,7 +25,9 @@ class QuestionController extends Controller
      */
     public function create()
     {
-        
+        $question = new Question();
+        $data['qustion'] = $question;
+        return view('questions.create',$data);
     }
 
     /**
