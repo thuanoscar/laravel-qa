@@ -10504,3 +10504,7 @@ strong {
   background: #6cb2eb;
 }
 
+form.form-delete {
+  display: inline;
+}
+
