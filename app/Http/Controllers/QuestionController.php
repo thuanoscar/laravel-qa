@@ -8,6 +8,12 @@ use App\Http\Requests\AskQuestionRequest;
 
 class QuestionController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth',['except'=>['index','show']]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -26,6 +32,9 @@ class QuestionController extends Controller
      */
     public function create()
     {
+        if(\Gate::denies('create-question')){
+            abort(403,'Access denied');
+        }
         $data['title'] = old('title');
         $data['body'] = old('body');
         return view('questions.create',$data);
@@ -61,13 +70,18 @@ class QuestionController extends Controller
      * @param  \App\Question  $question
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Question $question)
     {
-        $question = Question::findOrFail($id);
+        // $this->authorize('update', $question);
+        if(\Gate::denies('update-question',$question)){
+            abort(403,'Access denied');
+        }
+        $question = Question::findOrFail($question->id);
         $data['title'] = $question->title;
         $data['body'] = $question->body;
         $data['id'] = $question->id;
         return view('questions.edit',$data);
+        
     }
 
     /**
@@ -79,6 +93,9 @@ class QuestionController extends Controller
      */
     public function update(AskQuestionRequest $request,Question $question)
     {
+        if(\Gate::denies('update-question',$question)){
+            abort(403,'Access denied');
+        }
         $question->update($request->only('title','body'));
         return redirect('/questions')->with('success','Your question has been updated');
     }
@@ -91,6 +108,9 @@ class QuestionController extends Controller
      */
     public function destroy(Question $question)
     {
+        if(\Gate::denies('delete-question',$question)){
+            abort(403,'Access denied');
+        }
         $question->delete();
         return redirect('/questions')->with('success','Your question has been deleted');
     }
